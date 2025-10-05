@@ -7,3 +7,4 @@ langchain_text_splitters
 pymupdf
 langgraph
 dotenv
+sentence-transformers
