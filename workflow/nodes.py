@@ -38,7 +38,7 @@ def node_pedir_info(state: AgentState) -> AgentState:
     detalhe = ", ".join(faltantes) if faltantes else "Tema e contexto específico"
 
     return {
-        "resposta": f"Para avançar, preciso que detalhe: {detalhe}",
+        "resposta": f"Para avançar, preciso que refaça a pergunta e detalhe: {detalhe}",
         "citacoes": [],
         "acao_final": "PEDIR_INFO"
     }
