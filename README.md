@@ -9,6 +9,7 @@ A chatbot that makes searching documents and information about the Instituto Tad
   pip install -r requirements.txt
   ```
 - Create a file '.env' that contains: GEMINI_API_KEY=your-key
+- Create a directory "Documentos_ITT" with the pdf files from ITT internal politics
 
 ## ▶️ Run Streamlit application
 
