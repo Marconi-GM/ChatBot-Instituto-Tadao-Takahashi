@@ -9,3 +9,10 @@ A chatbot that makes searching documents and information about the Instituto Tad
   pip install -r requirements.txt
   ```
 - Create a file '.env' that contains: GEMINI_API_KEY=your-key
+
+## ▶️ Run Streamlit application
+
+- Run the command:
+  ```
+  streamlit run app.py
+  ```
