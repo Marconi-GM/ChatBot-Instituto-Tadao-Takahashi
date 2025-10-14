@@ -3,8 +3,8 @@ as chains e o retriever para definir os nós e as arestas do seu grafo de estado
 (LangGraph). """
 from typing import TypedDict, Optional, List
 from langgraph.graph import StateGraph, START, END
-from chains import get_triagem_chain, get_rag_chain, TRIAGEM_PROMPT
-from vector_store import get_retriever
+from .chains import get_triagem_chain, get_rag_chain, TRIAGEM_PROMPT
+from .vector_store import get_retriever
 from langchain_core.messages import SystemMessage, HumanMessage
 
 # --- Definição do Estado do Agente ---

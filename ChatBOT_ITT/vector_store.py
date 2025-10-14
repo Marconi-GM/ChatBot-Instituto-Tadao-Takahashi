@@ -6,7 +6,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.vectorstores import VectorStoreRetriever
 
-from config import EMBEDDING_MODEL, load_api_key
+from .config import EMBEDDING_MODEL, load_api_key
 
 def get_retriever() -> VectorStoreRetriever:
     """
@@ -17,7 +17,7 @@ def get_retriever() -> VectorStoreRetriever:
     GOOGLE_API_KEY = load_api_key()
 
     # 1. Carregas os Documentos
-    pasta_pdfs = Path(__file__).parent / "Documentos_ITT"
+    pasta_pdfs = Path(__file__).parent.parent / "Documentos_ITT"
     docs = []
     for pdf_path in pasta_pdfs.glob("*.pdf"):
         try:
@@ -31,7 +31,7 @@ def get_retriever() -> VectorStoreRetriever:
         raise RuntimeError("Nenhum documento foi carregado. Verifique a pasta de documentos.")
 
     # 2. Dividir em Chunks
-    splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=30)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     chunks = splitter.split_documents(docs)
 
     # 3. Criar embeddings e vector store

@@ -8,12 +8,12 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
-from config import GEMINI_MODEL, load_api_key
+from .config import GEMINI_MODEL, load_api_key
 
 # --- Configuração da Chain de Triagem ---
 TRIAGEM_PROMPT = (
-    "Você é um ajudante dos profissionais que atuam no ITT (Instituto Tadao Takahashi)"
-    "que fornece informações sobre o estatuto do ITT e auxilia com dúvidas gerais. "
+    "Você é um classificador de perguntas para um assistente de IA do Instituto Tadao Takahashi (ITT). "
+    "Sua função é decidir se uma pergunta pode ser respondida buscando informações no estatuto do ITT ou se ela é incompleta. "
     "Dada a mensagem do usuário, retorne SOMENTE um JSON com:\n"
     "{\n"
     '  "decisao": "AUTO_RESOLVER" | "PEDIR_INFO",\n'
@@ -33,7 +33,7 @@ def get_triagem_chain():
     """Retorna uma chain configurada para a triagem inicial."""
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_MODEL,
-        temperature=0.3,
+        temperature=0.7,
         google_api_key=load_api_key()
     )
     return llm.with_structured_output(TriagemOut)
@@ -41,18 +41,22 @@ def get_triagem_chain():
 # --- Configuração da Chain de RAG ---
 RAG_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
     ("system",
-     "Você é um ajudante dos profissionais que atuam no ITT (Instituto Tadao Takahashi) "
-     "e responde perguntas sobre o estatuto do ITT. "
-     "Responda SOMENTE com base no contexto fornecido. "
-     "Se a resposta não estiver no contexto, responda apenas 'Não sei'."),
-    ("human", "Pergunta: {input}\n\nContexto:\n{context}")
+     "Você é um assistente especialista no estatuto do Instituto Tadao Takahashi (ITT). "
+     "Sua tarefa é responder às perguntas do usuário de forma clara, completa e prestativa, baseando-se estritamente no contexto fornecido.\n\n"
+     "Regras Importantes:\n"
+     "1. Sintetize a Informação: Se o contexto contiver informações de diferentes seções do documento, combine-as para formar uma resposta coesa e completa.\n"
+     "2. Resposta Direta: Responda diretamente à pergunta do usuário.\n"
+     "3. Formatação: Use listas (bullet points) se for apropriado para organizar a informação e facilitar a leitura.\n"
+     "4. Fidelidade ao Contexto: NÃO adicione nenhuma informação que não esteja explicitamente no contexto fornecido.\n"
+     "5. Resposta Negativa: Se a resposta para a pergunta não puder ser encontrada no contexto, responda de forma clara e educada: 'Com base nos documentos que tenho acesso, não encontrei a resposta para a sua pergunta.'"),
+    ("human", "Pergunta do Usuário: {input}\n\nContexto Relevante dos Documentos:\n{context}")
 ])
 
 def get_rag_chain():
     """Retorna uma chain configurada para responder perguntas com base em contexto (RAG)."""
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_MODEL,
-        temperature=0.3,
+        temperature=0.7,
         google_api_key=load_api_key()
     )
     return create_stuff_documents_chain(llm, RAG_PROMPT_TEMPLATE)

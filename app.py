@@ -1,32 +1,81 @@
-from agent import get_graph
+import streamlit as st
+from ChatBOT_ITT.agent import get_graph
 
-def main():
-    """Função principal que executa o chatbot."""
-    # Compila o grafo do agente
-    chatbot = get_graph()
-    
-    print("Chatbot do ITT iniciado! Digite 'sair' para terminar.")
-    
-    # Loop de conversação
-    while True:
-        pergunta = input("Você: ")
-        if pergunta.lower() == 'sair':
-            break
-        
-        # Invoca o agente com a pergunta do usuário
-        resposta_final = chatbot.invoke({"pergunta": pergunta})
-        
-        # Imprime a resposta para o usuário
-        print(f"Chatbot: {resposta_final.get('resposta')}")
-        
-        # Opcional: Imprimir citações se houver
-        if resposta_final.get("citacoes"):
-            print("\nFontes encontradas:")
-            for doc in resposta_final["citacoes"]:
-                source = doc.metadata.get("source", "N/D")
-                page = doc.metadata.get("page", "N/D")
-                print(f"  - Documento: {source}, Página: {page}")
-            print("-" * 20)
+# --- Configuração da Página ---
+st.set_page_config(
+    page_title="ChatBOT do ITT",
+    page_icon="🤖",
+    layout="wide"
+)
 
-if __name__ == "__main__":
-    main()
+st.markdown("""
+<style>
+    /* Centraliza o título principal da aplicação */
+    h1 {
+        text-align: center;
+    }
+
+    /* Estiliza a caixa de texto do chat */
+    .stChatInputContainer {
+        max-width: 80%; /* Define uma largura máxima */
+        margin: auto;   /* Centraliza o container */
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("🤖 ChatBOT do Instituto Tadao Takahashi")
+st.caption("Faça perguntas sobre o estatuto e procedimentos do ITT.")
+
+@st.cache_resource
+def load_chatbot():
+    """Carrega e compila o grafo do agente uma única vez."""
+    print("\tInicializando o ChatBOT, por favor aguarde...")
+    return get_graph()
+
+
+chatbot = load_chatbot()
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "Assistente", "content": "Olá! Como posso ajudar com informações sobre o ITT hoje?"}]
+
+for message in st.session_state.messages:
+    avatar = "🤖" if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("Digite sua pergunta aqui..."):
+    # a) Adiciona a mensagem do usuário ao histórico.
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # b) Exibe a mensagem do usuário na tela instantaneamente.
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # c) Prepara para mostrar a resposta do assistente.
+    with st.chat_message("assistant"):
+        # st.spinner cria uma animação de "carregando" para dar feedback
+        # visual de que o bot está processando a informação.
+        with st.spinner("Analisando sua pergunta..."):
+            # d) AQUI ACONTECE A MÁGICA: Invoca seu agente LangGraph com a pergunta.
+            resposta_final = chatbot.invoke({"pergunta": prompt})
+            
+            # e) Extrai as informações da resposta do seu agente.
+            resposta_texto = resposta_final.get("resposta", "Desculpe, ocorreu um erro.")
+            citacoes = resposta_final.get("citacoes")
+
+            # f) Exibe a resposta principal na tela.
+            st.markdown(resposta_texto)
+            
+            # g) Se houver citações, as exibe de forma organizada em um "expander".
+            if citacoes:
+                with st.expander("Fontes Consultadas"):
+                    for doc in citacoes:
+                        # Limpa o nome do arquivo para melhor visualização.
+                        source = doc.metadata.get("source", "N/D").split("/")[-1]
+                        page = doc.metadata.get("page", "N/D")
+                        
+                        st.markdown(f"**Documento:** `{source}` (página {page + 1})")
+                        st.markdown(f"> _{doc.page_content}_")
+
+    # h) Adiciona a resposta do bot ao histórico para que ela seja exibida
+    # nas próximas interações.
+    st.session_state.messages.append({"role": "assistant", "content": resposta_texto})

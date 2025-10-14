@@ -10,7 +10,7 @@ EMBEDDING_MODEL = "models/text-embedding-004"
 
 def load_api_key() -> str:
     """Carrega a chave da API do Google a partir do arquivo .env."""
-    env_path = Path(__file__).parent / ".env"
+    env_path = Path(__file__).parent.parent / ".env"
     load_dotenv(dotenv_path=env_path)
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     if not GOOGLE_API_KEY:

@@ -1,0 +1,38 @@
+# Seleciona o container do input de chat
+.stChatInputContainer {
+    max-width: 70%; /* Deixa a caixa de texto com 70% da largura da tela */
+    margin: auto;  /* Centraliza a caixa de texto */
+    padding: 10px; /* Adiciona preenchimento para um visual mais 'gordinho' */
+}
+
+# Arquivo de configuração global para o app Streamlit
+
+[theme]
+# Tema base claro
+base = "light"
+
+# Cor principal - um azul profissional e acessível
+primaryColor = "#1E88E5"
+
+# Fundo principal - um cinza muito claro para suavidade
+backgroundColor = "#F5F5F5"
+
+# Fundo de widgets - branco para criar contraste
+secondaryBackgroundColor = "#FFFFFF"
+
+# Cor do texto - cinza escuro para melhor legibilidade
+textColor = "#212121"
+
+# Fonte padrão moderna
+font = "sans-serif"
+
+# Cantos dos elementos ligeiramente arredondados
+baseRadius = "medium"
+
+[client]
+# Esconde o menu de desenvolvedor para uma aparência mais limpa
+toolbarMode = "minimal"
+
+[server]
+# (Opcional) Recarrega o app automaticamente quando você salva um arquivo
+runOnSave = true
